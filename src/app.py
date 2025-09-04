@@ -2,9 +2,17 @@ import json
 import requests
 import boto3
 import os
+from decimal import Decimal
 
 TABLE_NAME = os.environ.get('TABLE_NAME', 'AwsClickerCountryCounts')
 table = boto3.resource('dynamodb').Table(TABLE_NAME)
+
+# Custom encoder for converting Decimal types in DynamoDB responses to int
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return int(obj)
+        return super(DecimalEncoder, self).default(obj)
 
 def lambda_handler(event, context):
     # Log event into CloudWatch
