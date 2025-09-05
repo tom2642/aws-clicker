@@ -31,6 +31,17 @@ def lambda_handler(event, context):
     increment_country_count(country)
 
     # Return the updated country count
+    respons_whole_table = table.scan()
+    # Sort countries by press_count in descending order
+    all_country_counts = respons_whole_table.get('Items', []).sort(key=lambda item: item.get('press_count', 0), reverse=True)
+    return {
+        'statusCode': 200,
+        'headers': {    
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        },
+        'body': json.dumps(all_country_counts, cls=DecimalEncoder)
+    }
 
 def determine_country_from_ip(ip):
     try:
