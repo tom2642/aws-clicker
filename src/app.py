@@ -32,8 +32,8 @@ def lambda_handler(event, context):
 
     # Return the updated country count
     respons_whole_table = table.scan()
-    # Sort countries by press_count in descending order
-    all_country_counts = respons_whole_table.get('Items', []).sort(key=lambda item: item.get('press_count', 0), reverse=True)
+    # Sort countries by click_count in descending order
+    all_country_counts = respons_whole_table.get('Items', []).sort(key=lambda item: item.get('click_count', 0), reverse=True)
     return {
         'statusCode': 200,
         'headers': {    
@@ -56,14 +56,14 @@ def determine_country_from_ip(ip):
         return "UNKNOWN"
     
 def increment_country_count(country):
-    # Increment the press count for the country
+    # Increment the click count for the country
     response = table.update_item(
         Key={'country': country},
-        UpdateExpression="ADD press_count :incr",
-        ExpressionAttributeNames={"#count": "press_count"},
+        UpdateExpression="ADD click_count :incr",
+        ExpressionAttributeNames={"#count": "click_count"},
         ExpressionAttributeValues={":incr": 1},
         ReturnValues="UPDATED_NEW"
     )
 
-    # Log the updated press count
-    print(f"Updated press count for {country}: {response['Attributes']['press_count']}")
+    # Log the updated click count
+    print(f"Updated click count for {country}: {response['Attributes']['click_count']}")
