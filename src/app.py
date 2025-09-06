@@ -31,9 +31,9 @@ def lambda_handler(event, context):
     increment_country_count(country)
 
     # Return the updated country count
-    respons_whole_table = table.scan()
+    all_country_counts = table.scan().get('Items', [])
     # Sort countries by click_count in descending order
-    all_country_counts = respons_whole_table.get('Items', []).sort(key=lambda item: item.get('click_count', 0), reverse=True)
+    all_country_counts.sort(key=lambda item: item.get('click_count', 0), reverse=True)
     return {
         'statusCode': 200,
         'headers': {    
@@ -60,7 +60,6 @@ def increment_country_count(country):
     response = table.update_item(
         Key={'country': country},
         UpdateExpression="ADD click_count :incr",
-        ExpressionAttributeNames={"#count": "click_count"},
         ExpressionAttributeValues={":incr": 1},
         ReturnValues="UPDATED_NEW"
     )
