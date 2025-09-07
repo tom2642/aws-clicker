@@ -4,6 +4,7 @@ import boto3
 import os
 from decimal import Decimal
 
+# DynamoDB configuration
 TABLE_NAME = os.environ.get('TABLE_NAME', 'AwsClickerCountryCounts')
 table = boto3.resource('dynamodb').Table(TABLE_NAME)
 
@@ -18,22 +19,27 @@ def lambda_handler(event, context):
     # Log event into CloudWatch
     print("Received event:", json.dumps(event, indent=2))
 
-    country = "UNKNOWN"
+    # Get the HTTP method from the event object
+    http_method = event.get('requestContext', {}).get('http', {}).get('method')
 
-    # Extract source IP
-    source_ip = event.get('requestContext', {}).get('http', {}).get('sourceIp', 'UNKNOWN')
+    # Handle POST requests to increment country count
+    if http_method == 'POST':
+        country = "UNKNOWN"
 
-    # Determine the country based on the source IP
-    if source_ip != "UNKNOWN":
-        country = determine_country_from_ip(source_ip)
+        # Extract source IP and determine the country based on the source IP
+        source_ip = event.get('requestContext', {}).get('http', {}).get('sourceIp', 'UNKNOWN')
+        if source_ip != "UNKNOWN":
+            country = determine_country_from_ip(source_ip)
 
-    # Increment the country in DynamoDB
-    increment_country_count(country)
+        # Increment the country in DynamoDB
+        increment_country_count(country)
 
-    # Return the updated country count
+    # Fetch lastest country counts from DynamoDB
     all_country_counts = table.scan().get('Items', [])
+
     # Sort countries by click_count in descending order
     all_country_counts.sort(key=lambda item: item.get('click_count', 0), reverse=True)
+
     return {
         'statusCode': 200,
         'headers': {    
