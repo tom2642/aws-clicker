@@ -3,9 +3,10 @@ Parameters:
     Type: String
     Description: The domain name for accessing the website hosted on S3
     Default: thebuttondoesnothing.click
+  # TODO: Uncomment and provide your ACM certificate ARN in us-east-1 for HTTPS support
 
 Resources:
-  # Route 53 Hosted Zone and Record Set
+  # --- DNS ---
   HostedZone:
     Type: AWS::Route53::HostedZone
     Properties:
@@ -17,42 +18,119 @@ Resources:
       Name: !Ref DomainName
       Type: A
       AliasTarget:
+        # Direct requests to the CloudFront distribution
         DNSName: !GetAtt Distribution.DomainName
         HostedZoneId: Z2FDTNDATAQYW2
 
-  # S3 Bucket for static website hosting and CloudFront Distribution
+  # --- Frontend ---
+  # S3 bucket for static website hosting
   Bucket:
     Type: AWS::S3::Bucket
     Properties:
+      # Enable static website hosting
       WebsiteConfiguration:
         IndexDocument: index.html
       BucketName: !Sub ${AWS::StackName}-aws-clicker-frontend-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+  # Bucket policy to allow public read access to frontend assets
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource:
+              - !Sub arn:${AWS::Partition}:s3:::${Bucket}/index.html
+              - !Sub arn:${AWS::Partition}:s3:::${Bucket}/script.js
+  # CloudFront distribution to serve the frontend from the S3 bucket
   Distribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Aliases:
+          - !Ref DomainName
+        # TODO: Uncomment and provide your ACM certificate ARN in us-east-1 for HTTPS support
         DefaultCacheBehavior:
           TargetOriginId: AwsClickerFrontend
           ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: false
         Enabled: true
+        # Fetch frontend assets from the S3 bucket
         Origins:
           - DomainName: !GetAtt Bucket.RegionalDomainName
             Id: AwsClickerFrontend
             CustomOriginConfig:
               OriginProtocolPolicy: http-only
+        DefaultRootObject: index.html
 
-  # Lambda Function (API handler) and DynamoDB Table
+  # --- Backend ---
+  # Lambda function to handle API requests
   Function:
     Type: AWS::Lambda::Function
     Properties:
-      Code: {}
-      Role: <String>
+      Code:
+        S3Bucket: aws-clicker-staging-bucket
+        S3Key: api-handler.zip
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaRole.Arn
+  # IAM Role for Lambda Function to access DynamoDB and CloudWatch Logs
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${AWS::StackName}-LambdaRole-${AWS::AccountId}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-LambdaDynamoDBPolicy-${AWS::AccountId}
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:*
+                Resource: !GetAtt Table.Arn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+  # DynamoDB table to store click counts
   Table:
     Type: AWS::DynamoDB::Table
     Properties:
+      AttributeDefinitions:
+        - AttributeName: country
+          AttributeType: S
       KeySchema:
-        - KeyType: HASH
-          AttributeName: <String>
+        - AttributeName: country
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+  # API Gateway to expose the Lambda function via HTTP
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub ${AWS::StackName}-api-handler-gateway
+      Description: API Gateway for handling requests to the Lambda function
+  # Get method for obtaining the latest counts when user first loads the page
   GetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -64,6 +142,7 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
+  # Post method for incrementing the count and obtaining the updated counts when user clicks the button
   PostMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -75,8 +154,23 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
-  RestApi:
-    Type: AWS::ApiGateway::RestApi
+  # Permission for API Gateway to invoke the Lambda function
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
     Properties:
-      Name: !Sub ${AWS::StackName}-api-handler-gateway
-      Description: API Gateway for handling requests to the Lambda function
+      FunctionName: !GetAtt Function.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+
+Outputs:
+  WebsiteURL:
+    Description: Your CloudFront website URL
+    Value: !Sub https://${Distribution.DomainName}/
+
+  ApiEndpoint:
+    Description: API Gateway Invoke URL (root path)
+    Value: !Sub https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/
+
+  S3BucketURL:
+    Description: Direct S3 bucket URL
+    Value: !Sub s3://${Bucket}/
