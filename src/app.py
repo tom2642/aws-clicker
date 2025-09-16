@@ -5,7 +5,7 @@ import os
 from decimal import Decimal
 
 # DynamoDB configuration
-TABLE_NAME = os.environ.get('TABLE_NAME', 'AwsClickerCountryCounts')
+TABLE_NAME = os.environ['TABLE_NAME']
 table = boto3.resource('dynamodb').Table(TABLE_NAME)
 
 # Custom encoder for converting Decimal types in DynamoDB responses to int

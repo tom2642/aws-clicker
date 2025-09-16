@@ -7,6 +7,10 @@ Parameters:
     Type: String
     Description: The ARN of the ACM certificate for the domain
     Default: arn:aws:acm:us-east-1:375033339413:certificate/5fc6475e-1cf6-43c7-bc96-0c1e801f90d6
+  StagingBucketName:
+    Type: String
+    Description: The name of the S3 bucket where the Lambda deployment package is stored
+    Default: aws-clicker-staging-bucket
 
 Resources:
   # --- DNS ---
@@ -72,7 +76,7 @@ Resources:
         Enabled: true
         # Fetch frontend assets from the S3 bucket
         Origins:
-          - DomainName: !GetAtt Bucket.RegionalDomainName
+          - DomainName: !GetAtt Bucket.WebsiteURL
             Id: AwsClickerFrontend
             CustomOriginConfig:
               OriginProtocolPolicy: http-only
@@ -84,11 +88,15 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: aws-clicker-staging-bucket
+        S3Bucket: !Ref StagingBucketName
         S3Key: api-handler.zip
       Handler: app.lambda_handler
       Runtime: python3.12
       Role: !GetAtt LambdaRole.Arn
+      # Pass the DynamoDB table name to the Lambda function via environment variable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
   # IAM Role for Lambda Function to access DynamoDB and CloudWatch Logs
   LambdaRole:
     Type: AWS::IAM::Role
