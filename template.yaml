@@ -3,7 +3,10 @@ Parameters:
     Type: String
     Description: The domain name for accessing the website hosted on S3
     Default: thebuttondoesnothing.click
-  # TODO: Uncomment and provide your ACM certificate ARN in us-east-1 for HTTPS support
+  AcmCertificateArn:
+    Type: String
+    Description: The ARN of the ACM certificate for the domain
+    Default: arn:aws:acm:us-east-1:375033339413:certificate/5fc6475e-1cf6-43c7-bc96-0c1e801f90d6
 
 Resources:
   # --- DNS ---
@@ -58,7 +61,9 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Ref DomainName
-        # TODO: Uncomment and provide your ACM certificate ARN in us-east-1 for HTTPS support
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateArn
+          SslSupportMethod: sni-only
         DefaultCacheBehavior:
           TargetOriginId: AwsClickerFrontend
           ViewerProtocolPolicy: redirect-to-https
