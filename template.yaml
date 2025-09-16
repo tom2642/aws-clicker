@@ -185,7 +185,7 @@ Outputs:
 
   ApiEndpoint:
     Description: API Gateway Invoke URL (root path)
-    Value: !Sub https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/
+    Value: !Sub https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/
 
   S3BucketURL:
     Description: Direct S3 bucket URL
