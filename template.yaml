@@ -43,6 +43,9 @@ Resources:
         BlockPublicPolicy: false
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
+    # No need to retain because frontend assets can be re-uploaded
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
   # Bucket policy to allow public read access to frontend assets
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -76,7 +79,7 @@ Resources:
         Enabled: true
         # Fetch frontend assets from the S3 bucket
         Origins:
-          - DomainName: !GetAtt Bucket.WebsiteURL
+          - DomainName: !Sub "${Bucket}.s3-website-${AWS::Region}.amazonaws.com"
             Id: AwsClickerFrontend
             CustomOriginConfig:
               OriginProtocolPolicy: http-only
