@@ -100,6 +100,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref Table
+          DOMAIN_NAME: !Ref DomainName
   # IAM Role for Lambda Function to access DynamoDB and CloudWatch Logs
   LambdaRole:
     Type: AWS::IAM::Role

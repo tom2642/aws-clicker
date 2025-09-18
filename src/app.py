@@ -4,8 +4,11 @@ import boto3
 import os
 from decimal import Decimal
 
-# DynamoDB configuration
+# Environment variables
 TABLE_NAME = os.environ['TABLE_NAME']
+DOMAIN_NAME = os.environ.get('DOMAIN_NAME')
+
+# DynamoDB configuration
 table = boto3.resource('dynamodb').Table(TABLE_NAME)
 
 # Custom encoder for converting Decimal types in DynamoDB responses to int
@@ -42,9 +45,11 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'headers': {    
+        'headers': {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': f'https://{DOMAIN_NAME}',
+            'Access-Control-Allow-Methods': 'POST,GET'
         },
         'body': json.dumps(all_country_counts, cls=DecimalEncoder)
     }
