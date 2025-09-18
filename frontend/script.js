@@ -1,7 +1,7 @@
 "use strict";
 
 // --- CONFIGURATION ---
-const API_ENDPOINT = "https://xmxoux78g7.execute-api.ap-northeast-1.amazonaws.com/";
+const API_ENDPOINT = "https://q0gmuyn2ic.execute-api.ap-northeast-1.amazonaws.com/";
 
 // --- DOM ELEMENTS ---
 const totalCountElement = document.getElementById('total-count');
