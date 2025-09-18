@@ -79,7 +79,7 @@ Resources:
         Enabled: true
         # Fetch frontend assets from the S3 bucket
         Origins:
-          - DomainName: !Sub "${Bucket}.s3-website-${AWS::Region}.amazonaws.com"
+          - DomainName: !Sub ${Bucket}.s3-website-${AWS::Region}.amazonaws.com
             Id: AwsClickerFrontend
             CustomOriginConfig:
               OriginProtocolPolicy: http-only
@@ -170,6 +170,30 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
+  # OPTIONS method for CORS preflight requests
+  OptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApi
+      ResourceId: !GetAtt RestApi.RootResourceId
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: "200"
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET,POST'"
+              method.response.header.Access-Control-Allow-Origin: !Sub "'https://${DomainName}'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+      MethodResponses:
+        - StatusCode: "200"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
   # Permission for API Gateway to invoke the Lambda function
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
@@ -177,6 +201,13 @@ Resources:
       FunctionName: !GetAtt Function.Arn
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
+  # Deployment of the API Gateway
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: [GetMethod, PostMethod, OptionsMethod]
+    Properties:
+      RestApiId: !Ref RestApi
+      StageName: prod
 
 Outputs:
   WebsiteURL:
@@ -185,7 +216,7 @@ Outputs:
 
   ApiEndpoint:
     Description: API Gateway Invoke URL (root path)
-    Value: !Sub https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/
+    Value: !Sub https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/prod
 
   S3BucketURL:
     Description: Direct S3 bucket URL
