@@ -22,7 +22,7 @@ You can try the application live here: **[https://thebuttondoesnothing.click](ht
 
 This application is 100% serverless and defined using Infrastructure as Code (AWS CloudFormation).
 
-![Architecture Diagram](https://raw.githubusercontent.com/tom-25519/aws-clicker/main/aws-clicker-architecture.png)
+![Architecture Diagram](https://github.com/tom2642/aws-clicker/blob/77c59c2e93107f52ceabc78f1f81e150158ac5a6/aws-clicker-architecture.png)
 
 **Request Flow:**
 1.  A user visits the website, which is hosted in an **S3 bucket** and delivered globally via **CloudFront**. DNS is managed by **Route 53**.
@@ -67,7 +67,7 @@ This application is 100% serverless and defined using Infrastructure as Code (AW
 
 このアプリケーションは100%サーバーレスで構成されており、すべてのインフラはコード（AWS CloudFormation）によって定義されています。
 
-![アーキテクチャ図](https://raw.githubusercontent.com/tom-25519/aws-clicker/main/aws-clicker-architecture.png)
+![アーキテクチャ図](https://github.com/tom2642/aws-clicker/blob/77c59c2e93107f52ceabc78f1f81e150158ac5a6/aws-clicker-architecture.png)
 
 **リクエストの流れ:**
 1.  ユーザーはウェブサイトにアクセスします。コンテンツは **S3バケット** にホストされ、**CloudFront** を通じてグローバルに配信されます。DNSは **Route 53** で管理されます。
