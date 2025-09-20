@@ -205,7 +205,10 @@ Resources:
   # Deployment of the API Gateway
   ApiDeployment:
     Type: AWS::ApiGateway::Deployment
-    DependsOn: [GetMethod, PostMethod, OptionsMethod]
+    DependsOn: 
+      - GetMethod
+      - PostMethod
+      - OptionsMethod
     Properties:
       RestApiId: !Ref RestApi
       StageName: prod
