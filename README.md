@@ -1,178 +1,93 @@
-English | 日本語
+# AWS Clicker - A Serverless Learning Project
+
+[English](#english) | [日本語](#日本語)
+
+---
 
 <a name="english"></a>
 
-Serverless Global Click Counter
-A simple, fully-serverless web application that tracks and displays the number of clicks on a button from users around the world. This project is a practical demonstration of building a scalable, event-driven application on AWS using Infrastructure as Code.
+## 🇬🇧 English
 
-Live Demo: https://www.your-custom-domain.com
+This project is a simple, serverless web application built entirely on AWS. It's designed to track user clicks from around the world and display a real-time leaderboard.
 
-Architecture
-This application is built entirely on serverless AWS services, ensuring high availability, scalability, and cost-efficiency (pay-per-use). All infrastructure is defined and deployed using a single AWS CloudFormation template.
+### My Learning Journey
 
-The workflow is as follows:
+As someone transitioning into a cloud and software engineering career, I created this project to gain hands-on experience with core cloud concepts. My goal was to understand how to build, deploy, and manage a full-stack application using modern, serverless technologies and Infrastructure as Code (IaC).
 
-The user visits the static website hosted in S3 and delivered globally by CloudFront. The domain is managed by Route 53.
+### Live Demo
 
-The frontend JavaScript makes API calls to API Gateway.
+You can try the application live here: **[https://thebuttondoesnothing.click](https://thebuttondoesnothing.click)**
 
-API Gateway triggers a Lambda function.
+### Architecture & Tech Stack
 
-The Lambda function determines the user's country from the request IP, updates a counter in a DynamoDB table, and returns the full, updated list of country rankings.
+This application is 100% serverless and defined using Infrastructure as Code (AWS CloudFormation).
 
-The frontend JavaScript dynamically updates the page with the new data.
+![Architecture Diagram](https://raw.githubusercontent.com/tom-25519/aws-clicker/main/aws-clicker-architecture.png)
 
-Core Features
-Global Click Tracking: Counts every click on the button.
+**Request Flow:**
+1.  A user visits the website, which is hosted in an **S3 bucket** and delivered globally via **CloudFront**. DNS is managed by **Route 53**.
+2.  The frontend (JavaScript) makes a GET request to **API Gateway** to fetch the initial click counts.
+3.  When the user clicks the button, a POST request is sent to **API Gateway**.
+4.  API Gateway triggers a **Lambda function** (Python).
+5.  The Lambda function identifies the user's country from their IP address and increments the corresponding count in a **DynamoDB** table.
+6.  The function then retrieves the updated leaderboard from DynamoDB and returns it to the user.
+7.  All infrastructure is managed as code using **AWS CloudFormation**. Logs are sent to **CloudWatch**.
 
-Geolocation: Determines the user's country of origin for each click.
+**Services Used:**
+- **Frontend:**
+    - **S3:** Hosts the static website (HTML, CSS, JS).
+    - **CloudFront:** Acts as a CDN for fast global delivery and provides HTTPS via **AWS Certificate Manager (ACM)**.
+    - **Route 53:** Manages the custom domain name.
+- **Backend:**
+    - **Lambda:** Serverless compute for running the application logic in Python.
+    - **API Gateway:** Provides a RESTful API endpoint for the frontend to communicate with the Lambda function.
+    - **DynamoDB:** A NoSQL database to store and retrieve click counts for each country.
+- **DevOps & Infrastructure:**
+    - **CloudFormation:** Defines all AWS resources as code (IaC), enabling automated and repeatable deployments.
+    - **IAM:** Manages permissions for AWS services to interact securely.
+    - **CloudWatch:** Collects logs for monitoring and debugging.
 
-Live Ranking: Displays a real-time, sorted leaderboard of clicks by country.
+---
 
-Fully Automated Deployment: All AWS resources are managed via a CloudFormation template.
+<a name="日本語"></a>
 
-Technology Stack
-Frontend: HTML, CSS (Bootstrap 5), JavaScript
+## 🇯🇵 日本語
 
-Backend: AWS Lambda (Python 3.12)
+このプロジェクトは、AWS上に構築されたシンプルなサーバーレス・ウェブアプリケーションです。世界中のユーザーからのクリックを記録し、リアルタイムでランキングを表示します。
 
-Database: Amazon DynamoDB (NoSQL)
+### 私の学習の道のり
 
-API: Amazon API Gateway (HTTP API)
+クラウド/ソフトウェアエンジニアへのキャリアチェンジを目指しており、主要なクラウドの概念を実践的に学ぶためにこのプロジェクトを作成しました。モダンなサーバーレス技術とInfrastructure as Code (IaC) を用いて、フルスタックアプリケーションの構築、デプロイ、管理の方法を理解することが目標でした。
 
-Hosting & CDN: Amazon S3 & Amazon CloudFront
+### ライブデモ
 
-DNS: Amazon Route 53
+こちらで実際にアプリケーションを試すことができます： **[https://thebuttondoesnothing.click](https://thebuttondoesnothing.click)**
 
-Security: AWS Certificate Manager (for SSL/TLS)
+### アーキテクチャと技術スタック
 
-Infrastructure as Code: AWS CloudFormation
+このアプリケーションは100%サーバーレスで構成されており、すべてのインフラはコード（AWS CloudFormation）によって定義されています。
 
-Project Structure
-.
-├── .gitignore
-├── README.md
-│
-├── frontend/          # Static website files
-│   ├── index.html
-│   ├── script.js
-│   └── style.css
-│
-├── src/               # Lambda function source code
-│   └── app.py
-│
-├── template.yaml      # CloudFormation template for all infrastructure
-└── requirements.txt   # Python dependencies for Lambda
+![アーキテクチャ図](https://raw.githubusercontent.com/tom-25519/aws-clicker/main/aws-clicker-architecture.png)
 
-Setup and Deployment
-Follow these steps to deploy the entire stack to your own AWS account.
+**リクエストの流れ:**
+1.  ユーザーはウェブサイトにアクセスします。コンテンツは **S3バケット** にホストされ、**CloudFront** を通じてグローバルに配信されます。DNSは **Route 53** で管理されます。
+2.  フロントエンド（JavaScript）は、初期表示のために **API Gateway** へGETリクエストを送信し、現在のクリック数を取得します。
+3.  ユーザーがボタンをクリックすると、POSTリクエストが **API Gateway** に送信されます。
+4.  API Gatewayが **Lambda関数**（Python）をトリガーします。
+5.  Lambda関数は、IPアドレスからユーザーの国を特定し、**DynamoDB** テーブルの対応する国のカウントを1増やします。
+6.  関数は更新されたランキングをDynamoDBから取得し、ユーザーに返します。
+7.  すべてのインフラは **AWS CloudFormation** を使用してコードとして管理（IaC）されています。ログは **CloudWatch** に送られます。
 
-Prerequisites
-An AWS Account.
-
-AWS CLI installed and configured.
-
-A registered domain name in Amazon Route 53.
-
-Python 3.12+ and pip installed locally.
-
-Step 1: Create an ACM Certificate (One-Time Manual Step)
-A certificate is required for HTTPS. CloudFormation cannot create this for you.
-
-Navigate to the AWS Certificate Manager (ACM) console.
-
-IMPORTANT: Switch your region to US East (N. Virginia) us-east-1. Certificates for CloudFront must be in this region.
-
-Request a public certificate for your custom domain (e.g., www.your-domain.com).
-
-Follow the DNS validation steps by adding the CNAME record to your domain in Route 53.
-
-Once the certificate status is "Issued", copy its ARN.
-
-Step 2: Prepare the Deployment Package
-First, package the Lambda function and its dependencies.
-
-# Install Python dependencies into a temporary package directory
-mkdir -p package
-pip install -r requirements.txt -t ./package
-
-# Copy your Lambda source code into the package directory
-cp src/app.py ./package/
-
-# Create the zip file from the package directory
-cd package
-zip -r ../function.zip .
-cd ..
-
-Step 3: Deploy the CloudFormation Stack
-Deploy the entire infrastructure using the AWS CLI. Replace the placeholder values in the command below.
-
-aws cloudformation deploy \
-  --template-file template.yaml \
-  --stack-name serverless-clicker-stack \
-  --parameter-overrides \
-    DomainName=[www.your-domain.com](https://www.your-domain.com) \
-    CertificateArn=arn:aws:acm:us-east-1:123456789012:certificate/your-cert-id \
-  --capabilities CAPABILITY_IAM
-
-DomainName: Your full custom domain name.
-
-CertificateArn: The ARN of the ACM certificate you created in Step 1.
-
-Step 4: Upload Frontend Files
-After the stack is created, CloudFormation will create the S3 bucket. You need to upload your frontend files to it.
-
-aws s3 sync ./frontend s3://[www.your-domain.com](https://www.your-domain.com)
-
-Your website is now live! It may take a few minutes for the CloudFront distribution and DNS records to fully propagate.
-
-<a name="japanese"></a>
-
-サーバーレス・グローバル・クリックカウンター (日本語)
-世界中のユーザーからのクリックを記録するシンプルな完全サーバーレスのWebアプリケーションです。このプロジェクトは、Infrastructure as Code (IaC) を使用して、イベント駆動型アプリをAWS上に構築する実践的なデモンストレーションです。
-
-ライブデモ: https://www.your-custom-domain.com
-
-アーキテクチャ
-このアプリケーションは、AWSのサーバーレスサービスのみで構築されており、高い可用性、スケーラビリティ、およびコスト効率（従量課金制）を実現しています。すべてのインフラは、単一のAWS CloudFormationテンプレートによって定義およびデプロイされます。
-
-ワークフローは以下の通りです：
-
-ユーザーは、S3でホストされ、CloudFrontによってグローバルに配信される静的ウェブサイトにアクセスします。ドメインはRoute 53で管理されます。
-
-フロントエンドのJavaScriptがAPI GatewayにAPIコールを行います。
-
-API GatewayがLambda関数をトリガーします。
-
-Lambda関数は、リクエストIPからユーザーの国を特定し、DynamoDBテーブルのカウンターを更新し、更新された国別ランキングの完全なリストを返します。
-
-フロントエンドのJavaScriptが、新しいデータでページを動的に更新します。
-
-主な機能
-グローバルクリック追跡: すべてのクリックのカウント
-
-ジオロケーション: ユーザーの国の特定
-
-ライブランキング: ソートした国別のクリックランキングのリアルタイム表示
-
-完全自動デプロイ: すべてのAWSリソースはCloudFormationテンプレートで管理される
-
-技術スタック
-フロントエンド: HTML, CSS (Bootstrap 5), JavaScript
-
-バックエンド: AWS Lambda (Python 3.12)
-
-データベース: Amazon DynamoDB (NoSQL)
-
-API: Amazon API Gateway (HTTP API)
-
-ホスティング & CDN: Amazon S3 & Amazon CloudFront
-
-DNS: Amazon Route 53
-
-セキュリティ: AWS Certificate Manager (SSL/TLS用)
-
-Infrastructure as Code: AWS CloudFormation
-
-セットアップとデプロイ
-（セットアップとデプロイの手順は、技術的な用語が多いため、オリジナルの英語のセクションをご参照ください。）
+**使用サービス:**
+- **フロントエンド:**
+    - **S3:** 静的ウェブサイト（HTML, CSS, JS）をホスティング。
+    - **CloudFront:** 高速なグローバル配信のためのCDN。**AWS Certificate Manager (ACM)** によるHTTPS化も担当。
+    - **Route 53:** カスタムドメインのDNS管理。
+- **バックエンド:**
+    - **Lambda:** アプリケーションロジックを実行するためのサーバーレス・コンピューティング環境（Python）。
+    - **API Gateway:** フロントエンドがLambda関数と通信するためのRESTful APIエンドポイントを提供。
+    - **DynamoDB:** 各国のクリック数を保存・取得するためのNoSQLデータベース。
+- **DevOps & インフラストラクチャ:**
+    - **CloudFormation:** すべてのAWSリソースをコードとして定義（IaC）。自動化され、再現可能なデプロイを実現。
+    - **IAM:** AWSサービス間の安全な連携のための権限管理。
+    - **CloudWatch:** モニタリングとデバッグのためのログ収集。
