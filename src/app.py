@@ -23,14 +23,14 @@ def lambda_handler(event, context):
     print("Received event:", json.dumps(event, indent=2))
 
     # Get the HTTP method from the event object
-    http_method = event.get('requestContext', {}).get('http', {}).get('method')
+    http_method = event.get('httpMethod')
 
     # Handle POST requests to increment country count
     if http_method == 'POST':
         country = "UNKNOWN"
 
         # Extract source IP and determine the country based on the source IP
-        source_ip = event.get('requestContext', {}).get('http', {}).get('sourceIp', 'UNKNOWN')
+        source_ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'UNKNOWN')
         if source_ip != "UNKNOWN":
             country = determine_country_from_ip(source_ip)
 
