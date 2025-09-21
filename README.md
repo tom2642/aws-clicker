@@ -10,7 +10,7 @@
 
 This project is a simple, serverless web application built entirely on AWS. It's designed to track user clicks from around the world and display a real-time leaderboard.
 
-### My Learning Journey
+### Purpose
 
 As someone transitioning into a cloud and software engineering career, I created this project to gain hands-on experience with core cloud concepts. My goal was to understand how to build, deploy, and manage a full-stack application using modern, serverless technologies and Infrastructure as Code (IaC).
 
@@ -55,7 +55,7 @@ This application is 100% serverless and defined using Infrastructure as Code (AW
 
 このプロジェクトは、AWS上に構築されたシンプルなサーバーレス・ウェブアプリケーションです。世界中のユーザーからのクリックを記録し、リアルタイムでランキングを表示します。
 
-### 私の学習の道のり
+### 目的
 
 クラウド/ソフトウェアエンジニアへのキャリアチェンジを目指しており、主要なクラウドの概念を実践的に学ぶためにこのプロジェクトを作成しました。モダンなサーバーレス技術とInfrastructure as Code (IaC) を用いて、フルスタックアプリケーションの構築、デプロイ、管理の方法を理解することが目標でした。
 
